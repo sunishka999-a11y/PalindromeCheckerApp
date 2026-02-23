@@ -1,4 +1,4 @@
-public class UseCase2HardCodePalindrome {
+public class UseCase3PalindromeCheckerApp {
 
     public static void main(String[] args) {
 
