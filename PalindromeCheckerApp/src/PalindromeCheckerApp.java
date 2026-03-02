@@ -1,8 +1,17 @@
 import java.util.Scanner;
-import java.util.Deque;
-import java.util.ArrayDeque;
 
 public class PalindromeCheckerApp {
+
+    // Node class for Singly Linked List
+    static class Node {
+        char data;
+        Node next;
+
+        Node(char data) {
+            this.data = data;
+            this.next = null;
+        }
+    }
 
     public static void main(String[] args) {
 
@@ -11,25 +20,21 @@ public class PalindromeCheckerApp {
         System.out.println("Enter a string to check palindrome:");
         String input = scanner.nextLine();
 
-        Deque<Character> deque = new ArrayDeque<>();
-
-        // Insert characters into deque
-        for (int i = 0; i < input.length(); i++) {
-            deque.addLast(input.charAt(i));
+        if (input.length() == 0) {
+            System.out.println("The given string is a Palindrome.");
+            return;
         }
 
-        boolean isPalindrome = true;
+        // Convert string to linked list
+        Node head = new Node(input.charAt(0));
+        Node current = head;
 
-        // Compare front and rear elements
-        while (deque.size() > 1) {
-            char front = deque.removeFirst();
-            char rear = deque.removeLast();
-
-            if (front != rear) {
-                isPalindrome = false;
-                break;
-            }
+        for (int i = 1; i < input.length(); i++) {
+            current.next = new Node(input.charAt(i));
+            current = current.next;
         }
+
+        boolean isPalindrome = checkPalindrome(head);
 
         if (isPalindrome) {
             System.out.println("The given string is a Palindrome.");
@@ -38,5 +43,53 @@ public class PalindromeCheckerApp {
         }
 
         scanner.close();
+    }
+
+    private static boolean checkPalindrome(Node head) {
+
+        if (head == null || head.next == null)
+            return true;
+
+        // Fast & Slow pointer to find middle
+        Node slow = head;
+        Node fast = head;
+
+        while (fast.next != null && fast.next.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        // Reverse second half
+        Node secondHalf = reverse(slow.next);
+
+        Node firstHalf = head;
+        Node tempSecond = secondHalf;
+
+        // Compare both halves
+        while (tempSecond != null) {
+            if (firstHalf.data != tempSecond.data)
+                return false;
+
+            firstHalf = firstHalf.next;
+            tempSecond = tempSecond.next;
+        }
+
+        return true;
+    }
+
+    // In-place reversal of linked list
+    private static Node reverse(Node head) {
+
+        Node prev = null;
+        Node current = head;
+
+        while (current != null) {
+            Node nextNode = current.next;
+            current.next = prev;
+            prev = current;
+            current = nextNode;
+        }
+
+        return prev;
     }
 }
