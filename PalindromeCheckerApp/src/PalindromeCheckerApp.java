@@ -1,33 +1,73 @@
 import java.util.Scanner;
+import java.util.Stack;
+import java.util.Deque;
+import java.util.ArrayDeque;
 
-// Service class responsible only for palindrome checking
-class PalindromeChecker {
+/* Strategy Interface */
+interface PalindromeStrategy {
+    boolean checkPalindrome(String input);
+}
 
-    // Public method exposed to clients
+/* Stack-Based Strategy */
+class StackStrategy implements PalindromeStrategy {
+
+    @Override
     public boolean checkPalindrome(String input) {
 
-        if (input == null || input.length() <= 1) {
-            return true;
+        Stack<Character> stack = new Stack<>();
+
+        for (char ch : input.toCharArray()) {
+            stack.push(ch);
         }
 
-        char[] characters = input.toCharArray();
-
-        int start = 0;
-        int end = characters.length - 1;
-
-        while (start < end) {
-            if (characters[start] != characters[end]) {
+        for (char ch : input.toCharArray()) {
+            if (ch != stack.pop()) {
                 return false;
             }
-            start++;
-            end--;
         }
 
         return true;
     }
 }
 
-// Application class (Client)
+/* Deque-Based Strategy */
+class DequeStrategy implements PalindromeStrategy {
+
+    @Override
+    public boolean checkPalindrome(String input) {
+
+        Deque<Character> deque = new ArrayDeque<>();
+
+        for (char ch : input.toCharArray()) {
+            deque.addLast(ch);
+        }
+
+        while (deque.size() > 1) {
+            if (deque.removeFirst() != deque.removeLast()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+/* Context Class */
+class PalindromeService {
+
+    private PalindromeStrategy strategy;
+
+    // Inject strategy at runtime
+    public PalindromeService(PalindromeStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public boolean execute(String input) {
+        return strategy.checkPalindrome(input);
+    }
+}
+
+/* Application Class */
 public class PalindromeCheckerApp {
 
     public static void main(String[] args) {
@@ -37,10 +77,23 @@ public class PalindromeCheckerApp {
         System.out.println("Enter a string to check palindrome:");
         String input = scanner.nextLine();
 
-        // Create service object
-        PalindromeChecker palindromeChecker = new PalindromeChecker();
+        System.out.println("Choose Strategy:");
+        System.out.println("1 - Stack Strategy");
+        System.out.println("2 - Deque Strategy");
 
-        boolean result = palindromeChecker.checkPalindrome(input);
+        int choice = scanner.nextInt();
+
+        PalindromeStrategy strategy;
+
+        if (choice == 1) {
+            strategy = new StackStrategy();
+        } else {
+            strategy = new DequeStrategy();
+        }
+
+        PalindromeService service = new PalindromeService(strategy);
+
+        boolean result = service.execute(input);
 
         if (result) {
             System.out.println("The given string is a Palindrome.");
